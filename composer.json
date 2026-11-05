@@ -6,5 +6,10 @@
     },
     "require": {
         "dompdf/dompdf": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
     }
 }
