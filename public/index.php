@@ -2,11 +2,25 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\Database;
+use App\Controllers\LoginController;
 
-$pdo = database::conexao();
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-$resultado = $pdo->query("SELECT * FROM usuarios");
-$linha = $resultado->fetchAll();
+$base = dirname($_SERVER['SCRIPT_NAME']);
 
-echo $linha[0]['nome'];
+$rota = '/' . trim(substr($uri, strlen($base)), '/');
+
+switch ($rota) {
+    case '/':
+        echo 'Página inicial';
+        break;
+
+    case '/login':
+        $controller = new LoginController();
+        $controller->formulario();
+        break;
+
+    default:
+        http_response_code(404);
+        echo 'Página não encontrada';
+}
