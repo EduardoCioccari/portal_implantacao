@@ -10,15 +10,23 @@ $base = dirname($_SERVER['SCRIPT_NAME']);
 
 $rota = '/' . trim(substr($uri, strlen($base)), '/');
 
-switch ($rota) {
-    case '/':
+$metodo = $_SERVER['REQUEST_METHOD'];
+
+switch ("$metodo $rota") {
+    case 'GET /':
         echo 'Página inicial';
         break;
 
-    case '/login':
+    case 'GET /login':
         $controller = new LoginController();
         $controller->formulario();
         break;
+
+    case 'POST /login':
+        $controller = new LoginController();
+        $controller->entrar();
+        break;
+
 
     default:
         http_response_code(404);
