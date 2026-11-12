@@ -11,7 +11,9 @@
         <div class="card shadow-sm">
             <div class="card-body p-4">
                 <h1 class="h4 mb-4 text-center">Portal de Implantação</h1>
-
+                <?php if (!empty($erro)): ?>
+                    <div class="alert alert-danger"><?= $erro ?></div>
+                <?php endif; ?>
                 <form method="post" action="">
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mail</label>
