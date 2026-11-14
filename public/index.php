@@ -48,6 +48,17 @@ switch ("$metodo $rota") {
         $controller->sair();
         break;
 
+    case 'GET /clientes/novo':
+        $controller = new ClienteController();
+        $controller->novo();
+        break;
+
+    case 'POST /clientes/novo':
+        $controller = new ClienteController();
+        $controller->salvar();
+        break;
+
+
     default:
         http_response_code(404);
         echo 'Página não encontrada';
