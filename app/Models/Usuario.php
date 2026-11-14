@@ -13,4 +13,18 @@ class Usuario
 
         return $stmt->fetch();
     }
+
+    public static function clientesDoAnalista(int $analistaId): array
+{
+    $stmt = Database::conexao()->prepare(
+        "SELECT id, nome, email, data_cadastro
+         FROM usuarios
+         WHERE tipo = 'cliente' AND analista_id = ?
+         ORDER BY nome"
+    );
+    $stmt->execute([$analistaId]);
+
+    return $stmt->fetchAll();
+}
+
 }
