@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Core\Auth;
 use App\Controllers\LoginController;
 use App\Controllers\ClienteController;
+use App\Controllers\ItemController;
 
 session_start();
 
@@ -58,6 +59,20 @@ switch ("$metodo $rota") {
         $controller->salvar();
         break;
 
+    case 'GET /itens':
+        $controller = new ItemController();
+        $controller->index();
+        break;
+
+    case 'GET /itens/novo':
+        $controller = new ItemController();
+        $controller->novo();
+        break;
+
+    case 'POST /itens/novo':
+        $controller = new ItemController();
+        $controller->salvar();
+        break;
 
     default:
         http_response_code(404);

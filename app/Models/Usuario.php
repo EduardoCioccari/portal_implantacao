@@ -36,4 +36,16 @@ class Usuario
         $stmt->execute([$nome, $email, $senhaHash, $analistaId]);
     }
 
+    // Só encontra o cliente se ele pertencer ao analista
+    public static function buscarClienteDoAnalista(int $clienteId, int $analistaId): array|false
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT id, nome, email
+             FROM usuarios
+             WHERE id = ? AND tipo = 'cliente' AND analista_id = ?"
+        );
+        $stmt->execute([$clienteId, $analistaId]);
+
+        return $stmt->fetch();
+    }
 }
