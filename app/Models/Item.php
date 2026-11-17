@@ -27,4 +27,17 @@ class Item
         );
         $stmt->execute([$clienteId, $titulo, $descricao, $prazo]);
     }
+
+    // Só encontra o item se ele pertencer a este cliente (proteção contra IDOR)
+    public static function buscarDoCliente(int $itemId, int $clienteId): array|false
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT id, titulo, descricao, prazo_previsto, status
+             FROM itens
+             WHERE id = ? AND cliente_id = ?"
+        );
+        $stmt->execute([$itemId, $clienteId]);
+
+        return $stmt->fetch();
+    }
 }

@@ -2,7 +2,6 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\Auth;
 use App\Controllers\LoginController;
 use App\Controllers\ClienteController;
 use App\Controllers\ItemController;
@@ -40,8 +39,8 @@ switch ("$metodo $rota") {
         break;
 
     case 'GET /cliente':
-        Auth::exigirPerfil('cliente');
-        echo 'Área do cliente. Olá, ' . $_SESSION['usuario']['nome'];
+        $controller = new ItemController();
+        $controller->meusItens();
         break;
 
     case 'GET /logout':

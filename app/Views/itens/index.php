@@ -4,11 +4,7 @@
 /** @var array $cliente */
 /** @var string|null $sucesso */
 
-$status = [
-    'pendente'             => ['Pendente', 'secondary'],
-    'aguardando_validacao' => ['Aguardando validação', 'warning'],
-    'concluido'            => ['Concluído', 'success'],
-];
+$status = require __DIR__ . '/status.php';
 ?>
 
 <a href="<?= BASE_URL ?>/analista" class="btn btn-link px-0 mb-2">&larr; Meus clientes</a>

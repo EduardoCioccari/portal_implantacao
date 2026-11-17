@@ -69,6 +69,71 @@ class ItemController
         exit;
     }
 
+    // Cliente ve os itens da própria implantação
+    public function meusItens()
+    {
+        Auth::exigirPerfil('cliente');
+
+        $itens = Item::listarPorCliente($_SESSION['usuario']['id']);
+
+        $sucesso = $_SESSION['sucesso'] ?? null;
+        unset($_SESSION['sucesso']);
+
+        require __DIR__ . '/../Views/itens/meus.php';
+    }
+
+    // UC06 (GET): formulário para o cliente descrever como foi a tarefa
+    public function formExecutar()
+    {
+        Auth::exigirPerfil('cliente');
+
+        $item = $this->itemPendenteDoCliente();
+
+        require __DIR__ . '/../Views/itens/executar.php';
+    }
+
+    // UC06 (POST): grava a observação e manda o item para validação
+    public function executar()
+    {
+        Auth::exigirPerfil('cliente');
+
+        $item = $this->itemPendenteDoCliente();
+        $observacao = trim($_POST['observacao'] ?? '');
+
+        if ($observacao === '') {
+            $erros = ['Descreva como foi a realização da tarefa.'];
+            require __DIR__ . '/../Views/itens/executar.php';
+            return;
+        }
+
+        Item::marcarExecutado($item['id'], $_SESSION['usuario']['id'], $observacao);
+
+        $_SESSION['sucesso'] = 'Item enviado para validação do analista.';
+        header('Location: ' . BASE_URL . '/cliente');
+        exit;
+    }
+
+    // Lê ?id= da URL e confere se o item é deste cliente e ainda está pendente
+    private function itemPendenteDoCliente(): array
+    {
+        $itemId = (int) ($_GET['id'] ?? 0);
+        $item = Item::buscarDoCliente($itemId, $_SESSION['usuario']['id']);
+
+        if (!$item) {
+            http_response_code(404);
+            echo 'Item não encontrado';
+            exit;
+        }
+
+        if ($item['status'] !== 'pendente') {
+            http_response_code(409);
+            echo 'Este item não está pendente.';
+            exit;
+        }
+
+        return $item;
+    }
+
     // Validação que só permite o analista acessar clientes que são dele
     private function clienteDoAnalista(): array
     {
