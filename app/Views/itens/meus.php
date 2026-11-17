@@ -32,6 +32,12 @@ $status = require __DIR__ . '/status.php';
                     <td>
                         <strong><?= htmlspecialchars($item['titulo']) ?></strong>
                         <div class="small text-muted"><?= htmlspecialchars($item['descricao']) ?></div>
+                        <?php if ($item['status'] === 'pendente' && $item['ultima_obs_tipo'] === 'devolucao'): ?>
+                            <div class="alert alert-danger small py-1 px-2 mt-2 mb-0">
+                                <strong>Devolvido pelo analista:</strong>
+                                <?= nl2br(htmlspecialchars($item['ultima_obs_texto'])) ?>
+                            </div>
+                        <?php endif; ?>
                     </td>
                     <td><?= date('d/m/Y', strtotime($item['prazo_previsto'])) ?></td>
                     <td><span class="badge text-bg-<?= $cor ?>"><?= $rotulo ?></span></td>

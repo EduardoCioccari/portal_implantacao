@@ -83,6 +83,21 @@ switch ("$metodo $rota") {
         $controller->executar();
         break;
 
+    case 'GET /validacoes':
+        $controller = new ItemController();
+        $controller->validacoes();
+        break;
+
+    case 'GET /itens/avaliar':
+        $controller = new ItemController();
+        $controller->formAvaliar();
+        break;
+
+    case 'POST /itens/avaliar':
+        $controller = new ItemController();
+        $controller->avaliar();
+        break;
+
     default:
         http_response_code(404);
         echo 'Página não encontrada';

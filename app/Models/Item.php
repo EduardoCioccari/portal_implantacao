@@ -8,8 +8,7 @@ class Item
 {
     public static function listarPorCliente(int $clienteId): array
     {
-        // O LEFT JOIN traz junto a observação mais recente de cada item (se houver),
-        // para mostrar, por exemplo, o motivo de uma devolução
+        
         $stmt = Database::conexao()->prepare(
             "SELECT i.id, i.titulo, i.descricao, i.prazo_previsto, i.status,
                     o.tipo AS ultima_obs_tipo, o.texto AS ultima_obs_texto
@@ -33,7 +32,7 @@ class Item
         $stmt->execute([$clienteId, $titulo, $descricao, $prazo]);
     }
 
-    // Só encontra o item se ele pertencer a este cliente (proteção contra IDOR)
+    // Só encontra o item se ele pertencer a este cliente
     public static function buscarDoCliente(int $itemId, int $clienteId): array|false
     {
         $stmt = Database::conexao()->prepare(
@@ -64,6 +63,75 @@ class Item
                  VALUES (?, ?, 'execucao', ?)"
             );
             $stmt->execute([$itemId, $clienteId, $observacao]);
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    // Itens aguardando validação de todos os clientes do analista
+    public static function aguardandoDoAnalista(int $analistaId): array
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT i.id, i.titulo, i.prazo_previsto,
+                    u.nome AS cliente_nome,
+                    o.texto AS observacao_cliente, o.data_registro
+             FROM itens i
+             JOIN usuarios u ON u.id = i.cliente_id
+             JOIN item_observacoes o
+               ON o.id = (SELECT MAX(id) FROM item_observacoes
+                          WHERE item_id = i.id AND tipo = 'execucao')
+             WHERE i.status = 'aguardando_validacao' AND u.analista_id = ?
+             ORDER BY o.data_registro"
+        );
+        $stmt->execute([$analistaId]);
+
+        return $stmt->fetchAll();
+    }
+
+    // Só encontra o item se o cliente pertence ao  analista
+    public static function buscarDoAnalista(int $itemId, int $analistaId): array|false
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT i.id, i.titulo, i.descricao, i.prazo_previsto, i.status,
+                    u.id AS cliente_id, u.nome AS cliente_nome,
+                    o.texto AS observacao_cliente, o.data_registro
+             FROM itens i
+             JOIN usuarios u ON u.id = i.cliente_id
+             LEFT JOIN item_observacoes o
+                    ON o.id = (SELECT MAX(id) FROM item_observacoes
+                               WHERE item_id = i.id AND tipo = 'execucao')
+             WHERE i.id = ? AND u.analista_id = ?"
+        );
+        $stmt->execute([$itemId, $analistaId]);
+
+        return $stmt->fetch();
+    }
+
+    // Mesma transação do marcarExecutado, mas feita pelo analista
+    public static function avaliar(int $itemId, int $analistaId, string $novoStatus, string $tipoObservacao, string $texto): void
+    {
+        $pdo = Database::conexao();
+
+        $pdo->beginTransaction();
+
+        try {
+            // Fazendo JOIN com usuarios para garantir que o item é de um cliente do analista
+            $stmt = $pdo->prepare(
+                "UPDATE itens i
+                 JOIN usuarios u ON u.id = i.cliente_id
+                 SET i.status = ?
+                 WHERE i.id = ? AND u.analista_id = ? AND i.status = 'aguardando_validacao'"
+            );
+            $stmt->execute([$novoStatus, $itemId, $analistaId]);
+
+            $stmt = $pdo->prepare(
+                "INSERT INTO item_observacoes (item_id, usuario_id, tipo, texto)
+                 VALUES (?, ?, ?, ?)"
+            );
+            $stmt->execute([$itemId, $analistaId, $tipoObservacao, $texto]);
 
             $pdo->commit();
         } catch (\Throwable $e) {
