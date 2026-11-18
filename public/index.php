@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\LoginController;
 use App\Controllers\ClienteController;
 use App\Controllers\ItemController;
+use App\Controllers\AssinaturaController;
 
 session_start();
 
@@ -12,7 +13,14 @@ session_start();
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $base = dirname($_SERVER['SCRIPT_NAME']);
+
+if (!str_starts_with($uri, $base)) {
+    $base = dirname($base);
+}
+$base = rtrim($base, '/\\');
+
 define('BASE_URL', $base);
+
 
 $rota = '/' . trim(substr($uri, strlen($base)), '/');
 
@@ -96,6 +104,16 @@ switch ("$metodo $rota") {
     case 'POST /itens/avaliar':
         $controller = new ItemController();
         $controller->avaliar();
+        break;
+
+    case 'GET /assinatura':
+        $controller = new AssinaturaController();
+        $controller->formulario();
+        break;
+
+    case 'POST /assinatura':
+        $controller = new AssinaturaController();
+        $controller->salvar();
         break;
 
     default:

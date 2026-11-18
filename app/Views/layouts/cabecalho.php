@@ -16,6 +16,7 @@
                 <?php if ($_SESSION['usuario']['tipo'] === 'analista'): ?>
                     <a href="<?= BASE_URL ?>/analista" class="btn btn-sm btn-primary">Meus clientes</a>
                     <a href="<?= BASE_URL ?>/validacoes" class="btn btn-sm btn-primary">Validações</a>
+                    <a href="<?= BASE_URL ?>/assinatura" class="btn btn-sm btn-primary">Minha assinatura</a>
                 <?php else: ?>
                     <a href="<?= BASE_URL ?>/cliente" class="btn btn-sm btn-primary">Minha implantação</a>
                 <?php endif; ?>

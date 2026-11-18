@@ -48,4 +48,19 @@ class Usuario
 
         return $stmt->fetch();
     }
+
+    // Retorna o nome do arquivo da assinatura (ou null se não tiver enviado)
+    public static function buscarAssinatura(int $usuarioId): ?string
+    {
+        $stmt = Database::conexao()->prepare('SELECT assinatura_imagem FROM usuarios WHERE id = ?');
+        $stmt->execute([$usuarioId]);
+
+        return $stmt->fetchColumn() ?: null;
+    }
+
+    public static function salvarAssinatura(int $usuarioId, string $nomeArquivo): void
+    {
+        $stmt = Database::conexao()->prepare('UPDATE usuarios SET assinatura_imagem = ? WHERE id = ?');
+        $stmt->execute([$nomeArquivo, $usuarioId]);
+    }
 }
