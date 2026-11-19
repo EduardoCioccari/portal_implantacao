@@ -3,7 +3,15 @@
 <?php
 /** @var array $item */
 /** @var array|null $erros */
+/** @var string|null $assinatura */
 ?>
+
+<?php if (!$assinatura): ?>
+    <div class="alert alert-warning">
+        Você ainda não cadastrou sua assinatura. Se este for o último item do cliente, o PDF de conclusão será gerado sem ela.
+        <a href="<?= BASE_URL ?>/assinatura" class="alert-link">Cadastrar assinatura</a>
+    </div>
+<?php endif; ?>
 
 <a href="<?= BASE_URL ?>/validacoes" class="btn btn-link px-0 mb-2">&larr; Itens aguardando validação</a>
 <h1 class="h3 mb-3">Avaliar item – <?= htmlspecialchars($item['cliente_nome']) ?></h1>

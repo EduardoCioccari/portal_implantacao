@@ -7,6 +7,8 @@ use App\Controllers\ClienteController;
 use App\Controllers\ItemController;
 use App\Controllers\AssinaturaController;
 
+date_default_timezone_set('America/Sao_Paulo');
+
 session_start();
 
 

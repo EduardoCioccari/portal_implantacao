@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Auth;
+use App\Core\Pdf;
 use App\Models\Item;
 use App\Models\Usuario;
 
@@ -132,6 +133,7 @@ class ItemController
         Auth::exigirPerfil('analista');
 
         $item = $this->itemAguardandoDoAnalista();
+        $assinatura = Usuario::buscarAssinatura($_SESSION['usuario']['id']);
 
         require __DIR__ . '/../Views/itens/avaliar.php';
     }
@@ -159,6 +161,7 @@ class ItemController
 
         if ($observacao === '') {
             $erros = ['Escreva uma observação (na devolução, informe o motivo).'];
+            $assinatura = Usuario::buscarAssinatura($_SESSION['usuario']['id']);
             require __DIR__ . '/../Views/itens/avaliar.php';
             return;
         }
@@ -167,7 +170,11 @@ class ItemController
 
         Item::avaliar($item['id'], $_SESSION['usuario']['id'], $novoStatus, $tipoObservacao, $observacao);
 
-        // Para geração do PDF quando todos os itens do cliente estiverem concluídos
+        // UC10: se foi o último item a ser validado, gera o PDF de conclusão
+        if ($acao === 'validar' && Item::todosConcluidos($item['cliente_id'])) {
+            Pdf::gerarConclusao($item['cliente_id'], $_SESSION['usuario']);
+            $mensagem = 'Item validado. Todos os itens foram concluídos e o PDF de conclusão foi gerado.';
+        }
 
         $_SESSION['sucesso'] = $mensagem;
         header('Location: ' . BASE_URL . '/validacoes');

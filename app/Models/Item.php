@@ -110,6 +110,36 @@ class Item
         return $stmt->fetch();
     }
 
+    // Verdadeiro se o cliente tem itens e todos estão concluídos
+    public static function todosConcluidos(int $clienteId): bool
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT COUNT(*) AS total, SUM(status = 'concluido') AS concluidos
+             FROM itens
+             WHERE cliente_id = ?"
+        );
+        $stmt->execute([$clienteId]);
+        $resultado = $stmt->fetch();
+
+        return $resultado['total'] > 0 && $resultado['total'] == $resultado['concluidos'];
+    }
+
+    // Itens do cliente com a data em que o analista validou cada um (para o PDF)
+    public static function concluidosDoCliente(int $clienteId): array
+    {
+        $stmt = Database::conexao()->prepare(
+            "SELECT i.titulo, i.prazo_previsto, MAX(o.data_registro) AS data_conclusao
+             FROM itens i
+             LEFT JOIN item_observacoes o ON o.item_id = i.id AND o.tipo = 'validacao'
+             WHERE i.cliente_id = ?
+             GROUP BY i.id
+             ORDER BY i.prazo_previsto, i.id"
+        );
+        $stmt->execute([$clienteId]);
+
+        return $stmt->fetchAll();
+    }
+
     // Mesma transação do marcarExecutado, mas feita pelo analista
     public static function avaliar(int $itemId, int $analistaId, string $novoStatus, string $tipoObservacao, string $texto): void
     {
