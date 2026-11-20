@@ -3,6 +3,7 @@
 <?php
 /** @var array $cliente */
 /** @var string|null $sucesso */
+/** @var array|false $documento */
 
 $status = require __DIR__ . '/status.php';
 ?>
@@ -16,6 +17,24 @@ $status = require __DIR__ . '/status.php';
 
 <?php if ($sucesso): ?>
     <div class="alert alert-success"><?= $sucesso ?></div>
+<?php endif; ?>
+
+<?php if ($documento): ?>
+    <div class="card mb-3 border-success">
+        <div class="card-body">
+            <h2 class="h5">Termo de conclusão</h2>
+            <p class="small text-muted">Gerado em <?= date('d/m/Y H:i', strtotime($documento['data_geracao'])) ?></p>
+
+            <a href="<?= BASE_URL ?>/clientes/termo?cliente=<?= $cliente['id'] ?>&tipo=consolidado" class="btn btn-outline-primary">Baixar termo</a>
+
+            <?php if ($documento['pdf_assinado_path']): ?>
+                <a href="<?= BASE_URL ?>/clientes/termo?cliente=<?= $cliente['id'] ?>&tipo=assinado" class="btn btn-success">Baixar termo assinado</a>
+                <span class="small text-muted ms-2">Enviado pelo cliente em <?= date('d/m/Y H:i', strtotime($documento['data_upload'])) ?></span>
+            <?php else: ?>
+                <span class="small text-muted ms-2">Aguardando o cliente enviar o termo assinado.</span>
+            <?php endif; ?>
+        </div>
+    </div>
 <?php endif; ?>
 
 <?php if (empty($itens)): ?>

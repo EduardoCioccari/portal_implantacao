@@ -3,6 +3,8 @@
 <?php
 /** @var array $itens */
 /** @var string|null $sucesso */
+/** @var string|null $erro */
+/** @var array|false $documento */
 
 $status = require __DIR__ . '/status.php';
 ?>
@@ -11,6 +13,38 @@ $status = require __DIR__ . '/status.php';
 
 <?php if ($sucesso): ?>
     <div class="alert alert-success"><?= $sucesso ?></div>
+<?php endif; ?>
+
+<?php if ($erro): ?>
+    <div class="alert alert-danger"><?= $erro ?></div>
+<?php endif; ?>
+
+<?php if ($documento): ?>
+    <div class="card mb-3 border-success">
+        <div class="card-body">
+            <h2 class="h5">Termo de conclusão</h2>
+            <p>Todos os itens foram concluídos. Baixe o termo, assine e envie de volta.</p>
+
+            <a href="<?= BASE_URL ?>/termo?tipo=consolidado" class="btn btn-outline-primary mb-3">Baixar termo para assinar</a>
+
+            <?php if ($documento['pdf_assinado_path']): ?>
+                <div class="alert alert-success py-2">
+                    Termo assinado enviado em <?= date('d/m/Y H:i', strtotime($documento['data_upload'])) ?>.
+                    <a href="<?= BASE_URL ?>/termo?tipo=assinado" class="alert-link">Ver arquivo enviado</a>
+                </div>
+            <?php endif; ?>
+
+            <form method="post" action="<?= BASE_URL ?>/termo/enviar" enctype="multipart/form-data">
+                <label for="termo" class="form-label">
+                    <?= $documento['pdf_assinado_path'] ? 'Enviar novamente (substitui o anterior)' : 'Enviar termo assinado' ?> (PDF, até 5 MB)
+                </label>
+                <div class="input-group">
+                    <input type="file" class="form-control" id="termo" name="termo" accept="application/pdf" required>
+                    <button type="submit" class="btn btn-success">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 <?php endif; ?>
 
 <?php if (empty($itens)): ?>

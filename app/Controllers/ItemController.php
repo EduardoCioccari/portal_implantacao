@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Pdf;
+use App\Models\Documento;
 use App\Models\Item;
 use App\Models\Usuario;
 
@@ -15,6 +16,7 @@ class ItemController
 
         $cliente = $this->clienteDoAnalista();
         $itens = Item::listarPorCliente($cliente['id']);
+        $documento = Documento::buscarDoCliente($cliente['id']);
 
         $sucesso = $_SESSION['sucesso'] ?? null;
         unset($_SESSION['sucesso']);
@@ -76,9 +78,11 @@ class ItemController
         Auth::exigirPerfil('cliente');
 
         $itens = Item::listarPorCliente($_SESSION['usuario']['id']);
+        $documento = Documento::buscarDoCliente($_SESSION['usuario']['id']);
 
         $sucesso = $_SESSION['sucesso'] ?? null;
-        unset($_SESSION['sucesso']);
+        $erro = $_SESSION['erro'] ?? null;
+        unset($_SESSION['sucesso'], $_SESSION['erro']);
 
         require __DIR__ . '/../Views/itens/meus.php';
     }
@@ -170,7 +174,7 @@ class ItemController
 
         Item::avaliar($item['id'], $_SESSION['usuario']['id'], $novoStatus, $tipoObservacao, $observacao);
 
-        // UC10: se foi o último item a ser validado, gera o PDF de conclusão
+        // Se foi o último item a ser validado, gera o PDF de conclusão
         if ($acao === 'validar' && Item::todosConcluidos($item['cliente_id'])) {
             Pdf::gerarConclusao($item['cliente_id'], $_SESSION['usuario']);
             $mensagem = 'Item validado. Todos os itens foram concluídos e o PDF de conclusão foi gerado.';

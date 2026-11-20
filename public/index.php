@@ -6,6 +6,7 @@ use App\Controllers\LoginController;
 use App\Controllers\ClienteController;
 use App\Controllers\ItemController;
 use App\Controllers\AssinaturaController;
+use App\Controllers\DocumentoController;
 
 date_default_timezone_set('America/Sao_Paulo');
 
@@ -116,6 +117,21 @@ switch ("$metodo $rota") {
     case 'POST /assinatura':
         $controller = new AssinaturaController();
         $controller->salvar();
+        break;
+
+    case 'POST /termo/enviar':
+        $controller = new DocumentoController();
+        $controller->enviarAssinado();
+        break;
+
+    case 'GET /termo':
+        $controller = new DocumentoController();
+        $controller->baixarCliente();
+        break;
+
+    case 'GET /clientes/termo':
+        $controller = new DocumentoController();
+        $controller->baixarAnalista();
         break;
 
     default:
