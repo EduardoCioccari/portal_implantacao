@@ -31,8 +31,9 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 
 switch ("$metodo $rota") {
     case 'GET /':
-        echo 'Página inicial';
-        break;
+        $destino = isset($_SESSION['usuario']) ? '/' . $_SESSION['usuario']['tipo'] : '/login';
+        header('Location: ' . BASE_URL . $destino);
+        exit;
 
     case 'GET /login':
         $controller = new LoginController();
